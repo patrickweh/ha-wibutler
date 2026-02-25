@@ -11,15 +11,42 @@ _LOGGER = logging.getLogger(__name__)
 BRIGHTNESS_SCALE = 255 / 100  # Prozent ↔ HA-Skala
 MIN_PERCENT = 10              # alles < 10 % = AUS
 
+
 async def async_setup_entry(hass, entry, async_add_entities):
-    """Set up Wibutler dimmable lights from a config entry."""
+    """Set up Wibutler lights from a config entry."""
     hub = hass.data[DOMAIN]["hub"]
     devices = hub.devices
 
     lights = []
+
     for device_id, device in devices.items():
-        """Typo in the API"""
-        if device.get("type") == "DimminActuators":
+        dev_type = device.get("type")
+        name = device.get("name") or ""
+        name_low = name.lower()
+        components = device.get("components", [])
+        comp_names = {c.get("name") for c in components}
+
+        # Debug ins Log, damit man sieht, was ankommt
+        _LOGGER.debug(
+            "WiButler-Gerät: id=%s name=%s type=%s components=%s",
+            device_id,
+            name,
+            dev_type,
+            comp_names,
+        )
+
+        # 1) Taster und Reconnect-Geräte NICHT als Light behandeln
+        if "taster" in name_low or "reconnect" in name_low:
+            _LOGGER.debug(
+                "WiButler: Gerät %s als Light übersprungen (Name-Filter).", name
+            )
+            continue
+
+        # 2) bekannte Typen + generische Erkennung:
+        # alles, was einen SWT- und/oder BRI_LVL-Kanal hat,
+        # wird als Light behandelt
+        if dev_type in ("DimminActuators", "DimmingActuators") or \
+           "BRI_LVL" in comp_names or "SWT" in comp_names:
             lights.append(WibutlerLight(hub, device))
 
     async_add_entities(lights, True)
@@ -97,8 +124,11 @@ class WibutlerLight(LightEntity):
         response = await self._hub._request("PATCH", url, data)
 
         if response:
-            _LOGGER.info("💡 Light %s ausgeschaltet (letzte Helligkeit %d %%)",
-                         self._attr_name, self._last_brightness_pct)
+            _LOGGER.info(
+                "💡 Light %s ausgeschaltet (letzte Helligkeit %d %%)",
+                self._attr_name,
+                self._last_brightness_pct,
+            )
             self._is_on = False
             self._brightness_pct = 0
             self.async_write_ha_state()

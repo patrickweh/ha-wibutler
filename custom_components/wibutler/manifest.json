@@ -1,7 +1,7 @@
 {
     "domain": "wibutler",
     "name": "Wibutler",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "documentation": "https://github.com/patrickweh/ha-wibutler",
     "requirements": [],
     "dependencies": [],

@@ -62,9 +62,10 @@ class WibutlerHub:
             async with self.session.post(url, json=payload) as response:
                 if response.status == 200:
                     data = await response.json()
-                    self.token = data.get("sessionToken")
+                    # ponytail: hub answers 200 with an empty body when its login service hangs
+                    self.token = data.get("sessionToken") if data else None
                     if not self.token:
-                        _LOGGER.error("API response contains no token")
+                        _LOGGER.error("API response contains no token: %r", data)
                         return False
                     _LOGGER.debug("Successfully authenticated with Wibutler")
                     self._set_available(True)

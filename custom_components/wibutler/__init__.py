@@ -4,6 +4,7 @@ import logging
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
 
 from .api import WibutlerHub
 from .const import PLATFORMS
@@ -55,8 +56,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: WibutlerConfigEntry) -> 
     )
 
     if not await hub.authenticate():
-        _LOGGER.error("Authentication failed")
-        return False
+        raise ConfigEntryNotReady("Wibutler hub authentication failed, will retry")
 
     hub.devices = await hub.get_devices()
     entry.runtime_data = hub

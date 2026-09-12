@@ -1,6 +1,5 @@
 """Wibutler integration for Home Assistant."""
 
-import logging
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -10,7 +9,6 @@ from .api import WibutlerHub
 from .const import PLATFORMS
 from .rocker import RockerController
 
-_LOGGER = logging.getLogger(__name__)
 
 type WibutlerConfigEntry = ConfigEntry[WibutlerHub]
 

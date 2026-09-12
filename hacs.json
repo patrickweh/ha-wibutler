@@ -1,10 +1,11 @@
 {
   "name": "Wibutler Integration",
   "country": "DE",
-  "domains": ["wibutler"],
+  "domains": [
+    "wibutler"
+  ],
   "homeassistant": "2023.1.0",
   "render_readme": true,
-  "filename": "custom_components/wibutler",
   "iot_class": "local_push",
   "zip_release": false,
   "image": "https://raw.githubusercontent.com/patrickweh/ha-wibutler/main/custom_components/wibutler/logo.png",
